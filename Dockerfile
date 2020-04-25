@@ -1,10 +1,14 @@
-FROM docker
+FROM microsoft/azure-cli:2.0.61
 
-RUN apk add --no-cache --update npm
+RUN az aks install-cli
 
-RUN npm install -g azure-cli
+ARG HELM_VERSION=3.1.2
+RUN curl -sSL https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz | tar xvz && \
+  mv linux-amd64/helm /usr/bin/helm && \
+  rm -rf linux-amd64
 
-RUN ln -s $(which azure) /usr/bin/az
+ARG HELMFILE_VERSION=0.112.0
+RUN curl -sSL https://github.com/roboll/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_linux_amd64 -o /bin/helmfile && \
+  chmod 0755 /bin/helmfile
 
-RUN wget -O /usr/bin/helmfile https://github.com/roboll/helmfile/releases/download/v0.112.0/helmfile_linux_amd64 && \
-    chmod +x /usr/bin/helmfile
+RUN apk add --no-cache docker
